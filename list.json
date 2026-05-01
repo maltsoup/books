@@ -1,0 +1,14 @@
+[
+    {
+        "name": "Slope (Standard URL)",
+        "type": "url",
+        "url": "https://kdata1.com/2020/05/slope/",
+        "thumb": ""
+    },
+    {
+        "name": "jsDelivr Game (Raw Text)",
+        "type": "jsdelivr",
+        "url": "https://cdn.jsdelivr.net/gh/bradtraversy/50projects50days@master/simple-timer/index.html",
+        "thumb": ""
+    }
+]
