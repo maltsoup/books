@@ -1,17 +1,10 @@
 [
   {
-    "name": "Slope Action",
-    "type": "url",
-    "url": "https://kdata1.com"
-  },
-  {
-    "name": "Reaction Timer",
-    "type": "jsdelivr",
+    "name": "Game One",
     "url": "https://jsdelivr.net"
   },
   {
-    "name": "Doodle Jump",
-    "type": "url",
-    "url": "https://cdn.jsdelivr.net/gh/bradtraversy/50projects50days@master/simple-timer/index.html"
+    "name": "Game Two",
+    "url": "https://githubusercontent.com"
   }
 ]
