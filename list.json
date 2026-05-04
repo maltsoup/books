@@ -1,14 +1,17 @@
 [
-    {
-        "name": "Slope (Standard URL)",
-        "type": "url",
-        "url": "https://kdata1.com/2020/05/slope/",
-        "thumb": ""
-    },
-    {
-        "name": "jsDelivr Game (Raw Text)",
-        "type": "jsdelivr",
-        "url": "https://cdn.jsdelivr.net/gh/bradtraversy/50projects50days@master/simple-timer/index.html",
-        "thumb": "https://www.google.com/imgres?q=brotato&imgurl=https%3A%2F%2Fcdn1.epicgames.com%2Fspt-assets%2F2c5525406ea34caebf391f1f4c8a44a5%2Fbrotato-294jp.png&imgrefurl=https%3A%2F%2Fstore.epicgames.com%2Fen-US%2Fp%2Fbrotato-ed4097&docid=Puv4ikKLii4PxM&tbnid=1aPB5ybuu-iIQM&vet=12ahUKEwiFkJ-7opmUAxXHnWoFHZcvABoQnPAOegQIGRAB..i&w=2560&h=1440&hcb=2&ved=2ahUKEwiFkJ-7opmUAxXHnWoFHZcvABoQnPAOegQIGRAB"
-    }
+  {
+    "name": "Slope Action",
+    "type": "url",
+    "url": "https://kdata1.com"
+  },
+  {
+    "name": "Reaction Timer",
+    "type": "jsdelivr",
+    "url": "https://jsdelivr.net"
+  },
+  {
+    "name": "Doodle Jump",
+    "type": "url",
+    "url": "https://cdn.jsdelivr.net/gh/bradtraversy/50projects50days@master/simple-timer/index.html"
+  }
 ]
