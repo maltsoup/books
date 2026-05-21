@@ -6,5 +6,9 @@
   {
     "name": "Brotato",
     "url": "https://cdn.jsdelivr.net/gh/maltsoup/books@main/assets/brotato.html"
+  },
+  {
+    "name": "Space Waves",
+    "url": "https://cdn.jsdelivr.net/gh/maltsoup/books@main/assets/space-waves.html"
   }
 ]
