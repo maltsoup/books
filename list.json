@@ -10,5 +10,13 @@
   {
     "name": "Geometry Dash",
     "url": "https://cdn.jsdelivr.net/gh/maltsoup/books@main/assets/gd-web-plus.html"
+  },
+  {
+    "name": "Aquapark.io",
+    "url": "https://cdn.jsdelivr.net/gh/maltsoup/books@main/assets/aquaparkio.html"
+  },
+  {
+    "name": "Soundboard",
+    "url": "https://cdn.jsdelivr.net/gh/maltsoup/books@main/assets/soundboard.html"
   }
 ]
