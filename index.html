@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Books Dashboard</title>
+
+<!-- Correct Supabase CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+  body { background:#000; color:#fff; font-family:sans-serif; margin:0; text-align:center; }
+  input,button { padding:8px; margin:4px; border-radius:4px; border:1px solid #333; background:#111; color:#fff; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; padding:20px; }
+  .card { background:#111; padding:16px; border-radius:6px; cursor:pointer; position:relative; }
+  .modal { display:none; position:fixed; inset:0; background:#000a; align-items:center; justify-content:center; }
+  .box { background:#111; padding:20px; border-radius:8px; width:280px; }
+</style>
+</head>
+
+<body>
+
+<div style="display:flex;max-width:450px;margin:20px auto;">
+  <input id="search" placeholder="Search..." style="flex:1" oninput="filterList()">
+  <button onclick="toggleModal(true)">⚙️</button>
+</div>
+
+<div id="grid" class="grid"></div>
+
+<!-- Admin/Login Modal -->
+<div id="modal" class="modal">
+  <div class="box">
+
+    <div id="loginBox">
+      <h3>Admin Login</h3>
+      <input id="email" type="email" placeholder="Email">
+      <input id="password" type="password" placeholder="Password">
+      <button onclick="login()">Login</button>
+    </div>
+
+    <div id="adminBox" style="display:none;">
+      <h3>Admin</h3>
+      <input id="nameInput" placeholder="Book Name">
+      <input id="urlInput" placeholder="Book URL">
+      <button onclick="addItem()">Add</button>
+      <button onclick="logout()">Logout</button>
+    </div>
+
+    <button onclick="toggleModal(false)">Close</button>
+  </div>
+</div>
+
+<!-- BOOK READER MODAL -->
+<div id="readerModal" class="modal">
+  <div id="readerBox" style="background:#111; padding:20px; border-radius:8px; width:90%; height:90%; display:flex; flex-direction:column;">
+
+    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+      <button onclick="closeReader()">Close</button>
+      <button onclick="toggleFullscreen()">Fullscreen</button>
+    </div>
+
+    <div id="readerContent"
+         style="flex:1; overflow:auto; background:#000; padding:20px; border-radius:6px; text-align:left;">
+      Loading...
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* Your Supabase project */
+const SB_URL = "https://fyusfirtcidczmijizkh.supabase.co";
+const KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5dXNmaXJ0Y2lkY3ptaWppemtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2NzMzNjcsImV4cCI6MjEwMzI0OTM2N30.MKIAnPm-F3tSfw00tXo2CEwVXkptM3Y0zmx2Bx6UmRI";  // IMPORTANT: use anon key, NOT publishable key
+
+let sb;
+let items = [];
+let isAdmin = false;
+
+/* Initialize after DOM loads */
+document.addEventListener("DOMContentLoaded", () => {
+  init();
+});
+
+/* Initialize Supabase + UI */
+async function init() {
+  try {
+    if (typeof supabase === "undefined") {
+      document.getElementById("grid").innerHTML =
+        `<div style="color:red;padding:40px;">Supabase failed to load.</div>`;
+      return;
+    }
+
+    sb = supabase.createClient(SB_URL, KEY);
+
+    const { data: { session } } = await sb.auth.getSession();
+    updateUI(session?.user);
+
+    sb.auth.onAuthStateChange((event, session) => {
+      updateUI(session?.user);
+    });
+
+    load();
+  } catch (err) {
+    console.error("Init error:", err);
+  }
+}
+
+/* Update admin UI */
+function updateUI(user) {
+  isAdmin = !!user;
+
+  document.getElementById("loginBox").style.display = isAdmin ? "none" : "block";
+  document.getElementById("adminBox").style.display = isAdmin ? "block" : "none";
+
+  render(items);
+}
+
+/* Load books */
+async function load() {
+  const { data, error } = await sb.from("books").select("*").order("name");
+  if (error) {
+    console.error(error);
+    return;
+  }
+  items = data || [];
+  render(items);
+}
+
+/* Render grid */
+function render(list) {
+  const grid = document.getElementById("grid");
+
+  if (!list.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;padding:40px;color:#666;">No books found.</div>`;
+    return;
+  }
+
+  grid.innerHTML = list.map(x => `
+    <div class="card" onclick="openReader('${x.url}')">
+      ${isAdmin ? `
+        <button onclick="event.stopPropagation();delItem('${x.url}')" 
+                style="position:absolute;top:4px;right:4px;">X</button>` : ""}
+      ${x.name}
+    </div>
+  `).join("");
+}
+
+/* Search filter */
+function filterList() {
+  const term = document.getElementById("search").value.toLowerCase();
+  render(items.filter(x => x.name.toLowerCase().includes(term)));
+}
+
+/* Modal toggle */
+function toggleModal(show) {
+  document.getElementById("modal").style.display = show ? "flex" : "none";
+}
+
+/* Login */
+async function login() {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  toggleModal(false);
+}
+
+/* Logout */
+async function logout() {
+  await sb.auth.signOut();
+}
+
+/* Add book */
+async function addItem() {
+  const name = document.getElementById("nameInput").value.trim();
+  const url = document.getElementById("urlInput").value.trim();
+
+  if (!name || !url) return;
+
+  const { error } = await sb.from("books").insert([{ name, url }]);
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  document.getElementById("nameInput").value = "";
+  document.getElementById("urlInput").value = "";
+  load();
+}
+
+/* Delete book */
+async function delItem(url) {
+  if (!confirm("Delete this book?")) return;
+
+  const { error } = await sb.from("books").delete().eq("url", url);
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  load();
+}
+
+/* BOOK READER — fetch text + convert to HTML */
+async function openReader(url) {
+  document.getElementById("readerModal").style.display = "flex";
+  const box = document.getElementById("readerContent");
+  box.innerHTML = "Loading...";
+
+  try {
+    const res = await fetch(url);
+    const text = await res.text();
+
+    const html = text
+      .split("\n")
+      .map(line => `<p>${line}</p>`)
+      .join("");
+
+    box.innerHTML = html;
+  } catch (err) {
+    box.innerHTML = `<p style="color:red;">Failed to load book.</p>`;
+  }
+}
+
+/* Close reader */
+function closeReader() {
+  document.getElementById("readerModal").style.display = "none";
+}
+
+/* Fullscreen toggle */
+function toggleFullscreen() {
+  const box = document.getElementById("readerBox");
+  if (!document.fullscreenElement) {
+    box.requestFullscreen();
+  } else {
+    document.exitFullscreen();
+  }
+}
+</script>
+
+</body>
+</html>
